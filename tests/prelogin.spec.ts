@@ -1,8 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
-const QUICK_PROMPT_RE = /what is permission|how to earn ask|what is ask|permission agent|earn ask/i;
-const WELCOME_RE = /would you like to know about permission\.ai|how to earn ask/i;
-
 function assistantBubbles(page: Page): Locator {
   return page.locator('div.flex.justify-start div.text-md');
 }
@@ -20,24 +17,25 @@ async function gotoLanding(page: Page): Promise<void> {
   await expect(page.getByPlaceholder(/ask anything/i)).toBeVisible();
 }
 
-async function findSuggestedTopicButton(page: Page): Promise<Locator | null> {
-  const allButtons = page.locator('button, [role="button"]');
-  const count = await allButtons.count();
+async function waitForSuggestedTopics(page: Page): Promise<Locator> {
+  const firstTopic = page.getByRole('button', { name: /what is permission/i }).first();
 
-  for (let i = 0; i < count; i += 1) {
-    const candidate = allButtons.nth(i);
-    const text = (await candidate.innerText().catch(() => '')).trim();
-    if (!text) {
-      continue;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/');
+    await dismissCookieBannerIfVisible(page);
+    await expect(page.getByPlaceholder(/ask anything/i)).toBeVisible();
+
+    if (await firstTopic.isVisible().catch(() => false)) {
+      return firstTopic;
     }
 
-    const isAuxButton = /log in|sign up|cookies|manage settings|allow all|accept all|reject all/i.test(text);
-    if (!isAuxButton && QUICK_PROMPT_RE.test(text) && (await candidate.isVisible().catch(() => false))) {
-      return candidate;
+    if (attempt < 3) {
+      await page.reload({ waitUntil: 'domcontentloaded' });
     }
   }
 
-  return null;
+  throw new Error('Suggested-topic pills were not visible after retries.');
 }
 
 async function waitForStableText(locator: Locator, timeoutMs = 30_000, stableForMs = 1_200): Promise<string> {
@@ -92,47 +90,15 @@ async function sendQuestion(page: Page, message: string): Promise<string> {
 
 test.describe('ask.permission.ai pre-login', () => {
   test('1) landing page shows suggested-topic affordance', async ({ page }) => {
-    await gotoLanding(page);
-
-    await expect
-      .poll(
-        async () => {
-          const topicButton = await findSuggestedTopicButton(page);
-          const hasWelcomeHint = await page
-            .getByText(WELCOME_RE)
-            .isVisible()
-            .catch(() => false);
-          const hasGreetingHint = await page
-            .getByText(/how can i help you today/i)
-            .isVisible()
-            .catch(() => false);
-
-          return Boolean(topicButton) || hasWelcomeHint || hasGreetingHint;
-        },
-        {
-          timeout: 20_000,
-          message: 'Expected either suggested-topic chips or a suggestion-oriented greeting hint',
-        }
-      )
-      .toBeTruthy();
+    const topic = await waitForSuggestedTopics(page);
+    await expect(topic).toBeVisible();
   });
 
   test('2) selecting a suggested topic produces an agent response', async ({ page }) => {
-    await gotoLanding(page);
-
-    const topicButton = await findSuggestedTopicButton(page);
+    const topicButton = await waitForSuggestedTopics(page);
     const previousAssistantCount = await assistantBubbles(page).count();
 
-    if (topicButton) {
-      await topicButton.click();
-    } else {
-      test.info().annotations.push({
-        type: 'note',
-        description: 'No topic chips in this build; used canonical quick prompt fallback.',
-      });
-      await page.getByPlaceholder(/ask anything/i).fill('What is Permission?');
-      await page.getByPlaceholder(/ask anything/i).press('Enter');
-    }
+    await topicButton.click();
 
     const response = (await waitForNewAssistantResponse(page, previousAssistantCount)).toLowerCase();
     const keySignals = ['permission', 'data', 'earn', 'agent', 'consent', 'ask'];

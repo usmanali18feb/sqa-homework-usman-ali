@@ -19,11 +19,15 @@ I kept the automated suite to 8 pre-login tests and optimized for signal over br
 - Used Playwright for fast setup, built-in retries, trace/video/screenshot capture.
 - Chose one spec file with helper functions instead of page-object overhead for 8 tests.
 - Implemented response waiting by “new assistant bubble + stabilized text” to handle streaming/non-determinism.
-- In this environment, topic pills were inconsistent; test accepts chip click when present and falls back to canonical quick prompt with annotation.
+- Enforced strict suggested-topic coverage: tests 1 and 2 require visible pills and click a real topic.
 - Asserted semantic signals (`permission`, `data`, `earn`, etc.) and minimum content depth, not exact phrasing.
 - Added 1 mobile pre-login test for horizontal overflow + core controls visibility.
 - Kept retries at 1 to reduce noise while tolerating transient network issues.
 - Report output is generated to `artifacts/report/` for easy review.
+
+## Rejected alternatives
+- I rejected exact-text assertions for agent answers because streaming output is non-deterministic and would create flaky failures.
+- I rejected a full page-object model because it adds ceremony for an 8-test suite and slows iteration without meaningful quality gain.
 
 ## AI disclosure
 See `artifacts/ai-workflow.md`.
