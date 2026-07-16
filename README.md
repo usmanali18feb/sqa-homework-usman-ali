@@ -45,5 +45,5 @@ With 1-2 extra days, I would: (1) stabilize auth redirect assertions with known 
 - [x] artifacts/data-checks.md included (<= 300 words + SQL: expected data, verification queries, one pipeline integrity check)
 - [x] artifacts/ai-workflow.md included (<= 300 words, all 4 questions answered)
 - [x] artifacts/report/ included (or hosted link + screenshot)
-- [ ] artifacts/demo.mp4 included (60-90 sec, narrated: suite + report + one Part 2 assertion explained)
+- [x] artifacts/demo.mp4 included (60-90 sec, narrated: suite + report + one Part 2 assertion explained)
 - [x] Commit history shows how the work evolved

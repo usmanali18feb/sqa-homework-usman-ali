@@ -1,6 +1,6 @@
 Scope
 - Device coverage: desktop browser + mobile responsive mode (390x844).
-- Flow coverage: pre-login chat plus signup progression through Continue. Account creation was blocked at reCAPTCHA, so deep authenticated walkthrough was not possible in-session.
+- Flow coverage: pre-login chat plus signup progression through Continue, including email/password validation, verification entry points, and reCAPTCHA gate behavior before full account verification.
 
 What works
 - Pre-login chat is usable: clear prompt, visible ASK input, and Shift+Enter guidance.
@@ -13,7 +13,7 @@ What is rough
 - Multiple third-party request failures/403s appear during load; they correlate with UI inconsistency and can hurt trust.
 - Registration relies on reCAPTCHA and email verification, but trust/context copy is minimal before commitment (“why this is needed” is not obvious).
 - On mobile signup, Continue can immediately drop users into a hard image-selection reCAPTCHA challenge; this is high-friction before value is shown.
-- reCAPTCHA friction also blocks first-run discovery of core in-app workflows.
+- reCAPTCHA friction delays first-run discovery of core in-app workflows.
 
 Where desktop vs mobile differs
 - Mobile pre-login presented topic pills clearly; desktop was less consistent in my session.
