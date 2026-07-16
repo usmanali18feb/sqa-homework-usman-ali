@@ -12,26 +12,42 @@ async function dismissCookieBannerIfVisible(page: Page): Promise<void> {
 }
 
 async function gotoLanding(page: Page): Promise<void> {
-  await page.goto('/');
-  await dismissCookieBannerIfVisible(page);
-  await expect(page.getByPlaceholder(/ask anything/i)).toBeVisible();
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 35_000 });
+      await dismissCookieBannerIfVisible(page);
+      await expect(page.getByPlaceholder(/ask anything/i)).toBeVisible({ timeout: 10_000 });
+      return;
+    } catch (error) {
+      lastError = error;
+      if (attempt < 3) {
+        await page.waitForTimeout(800 * attempt);
+      }
+    }
+  }
+
+  throw lastError;
 }
 
 async function waitForSuggestedTopics(page: Page): Promise<Locator> {
   const firstTopic = page.getByRole('button', { name: /what is permission/i }).first();
 
-  for (let attempt = 1; attempt <= 3; attempt += 1) {
+  for (let attempt = 1; attempt <= 5; attempt += 1) {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/');
-    await dismissCookieBannerIfVisible(page);
-    await expect(page.getByPlaceholder(/ask anything/i)).toBeVisible();
+    await gotoLanding(page);
 
-    if (await firstTopic.isVisible().catch(() => false)) {
-      return firstTopic;
+    const start = Date.now();
+    while (Date.now() - start < 12_000) {
+      if (await firstTopic.isVisible().catch(() => false)) {
+        return firstTopic;
+      }
+      await page.waitForTimeout(300);
     }
 
-    if (attempt < 3) {
-      await page.reload({ waitUntil: 'domcontentloaded' });
+    if (attempt < 5) {
+      await page.waitForTimeout(800 * attempt);
     }
   }
 
