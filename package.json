@@ -1,0 +1,20 @@
+{
+  "name": "sqa-homework-usman-ali",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Permission.io SQA take-home automation suite",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "report": "playwright show-report artifacts/report"
+  },
+  "keywords": [],
+  "author": "Usman Ali",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "typescript": "^7.0.2"
+  }
+}
