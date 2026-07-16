@@ -1,18 +1,19 @@
 Scope
 - Device coverage: desktop browser + mobile responsive mode (390x844).
-- Flow coverage: pre-login chat landing plus signup progression through Continue (which triggered reCAPTCHA challenge).
+- Flow coverage: pre-login chat plus signup progression through Continue. Account creation was blocked at reCAPTCHA, so deep authenticated walkthrough was not possible in-session.
 
 What works
-- Pre-login chat is immediately usable: clear prompt, visible ASK input, and helpful Shift+Enter guidance.
-- Suggested topics are strong when rendered (observed clearly on mobile), reducing first-message friction.
+- Pre-login chat is usable: clear prompt, visible ASK input, and Shift+Enter guidance.
+- Suggested topics help when rendered (observed on mobile), reducing first-message friction.
 - Registration form gives real-time password requirement feedback and disables Continue until inputs are valid.
 
 What is rough
-- In desktop runs, suggested-topic pills were inconsistent (sometimes replaced by only greeting text). This creates uncertainty about expected first action.
-- Cookie/privacy UI can be visually noisy and competes with core chat/form actions, especially on smaller screens.
-- Multiple third-party request failures/403s appear during load; while not always user-visible, they correlate with occasional UI inconsistency and could hurt trust/performance.
+- In desktop runs, suggested-topic pills were inconsistent (sometimes replaced by greeting text). This creates uncertainty about expected first action.
+- Cookie/privacy UI can be noisy and competes with core actions on smaller screens.
+- Multiple third-party request failures/403s appear during load; they correlate with UI inconsistency and can hurt trust.
 - Registration relies on reCAPTCHA and email verification, but trust/context copy is minimal before commitment (“why this is needed” is not obvious).
 - On mobile signup, Continue can immediately drop users into a hard image-selection reCAPTCHA challenge; this is high-friction before value is shown.
+- reCAPTCHA friction also blocks first-run discovery of core in-app workflows.
 
 Where desktop vs mobile differs
 - Mobile pre-login presented topic pills clearly; desktop was less consistent in my session.

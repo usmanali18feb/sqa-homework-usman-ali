@@ -8,7 +8,7 @@ What AI generated vs what I rewrote
 - I manually tightened the suite to exactly 8 tests and mapped each test to challenge requirements.
 
 One AI mistake I caught
-- Initial suggestion-topic logic assumed chips were always present as obvious buttons. In this environment, chips were inconsistent. I replaced it with explicit discovery + fallback + annotation and documented the tradeoff.
+- Initial suggestion-topic logic assumed chips were always present as obvious buttons. In this environment, chips were inconsistent. I first added a fallback send path, then corrected it again to satisfy strict challenge intent: tests 1 and 2 now require real topic pills and click a real suggested topic with retry/hardening.
 
 What I built by hand / did not trust AI with
 - Final waiting strategy for non-deterministic responses (`new bubble + stabilized text`) was hand-tuned.
